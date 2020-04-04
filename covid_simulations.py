@@ -9,16 +9,16 @@ plt.ion()
 
 STATS_FILE = 'covid_stats_usa.xlsx'
 TOTAL_DAYS = 150
-DRIFT = 0.011
-NO_OF_SIMS = 500
+DRIFT = 0.013
+NO_OF_SIMS = 50
 POPULATION_SIZE = 329000000
 
 
 def gf_monte_carlo(days_to_sim, mu, sigma, drift):
     gf_li = []
     for d in range(days_to_sim):
-        new_mu = mu - d * drift
-        gf = random.normal(new_mu, sigma)
+        new_mu = mu - (d // 1) * drift
+        gf = random.normal(new_mu - 0.1, sigma)
         if gf < 0:
             gf = 0
         if len(gf_li) > 0:
