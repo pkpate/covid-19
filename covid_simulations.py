@@ -3,6 +3,7 @@ import numpy as np
 from numpy import random
 import matplotlib.pyplot as plt
 import requests
+from datetime import timedelta
 
 plt.ion()
 
@@ -24,11 +25,9 @@ covid = pd.DataFrame(r.json())
 covid.date = pd.to_datetime(covid.date, format='%Y%m%d')
 covid.set_index('date', inplace=True)
 covid.sort_index(inplace=True)
-covid = covid.rename(columns={'positive': 'total_cases'})
-covid['new_cases'] = covid.total_cases.diff()
+covid = covid.rename(columns={'positive': 'total_cases', 'positiveIncrease': 'new_cases'})
+# covid['new_cases'] = covid.total_cases.diff()
 covid['growth_factor'] = covid.new_cases.pct_change() + 1
-
-covid.drop(covid.index[-1], inplace=True)
 
 
 def gf_monte_carlo(days_to_sim, mu, sigma, drift):
@@ -49,11 +48,11 @@ def gf_monte_carlo(days_to_sim, mu, sigma, drift):
 
 
 days_to_sim = TOTAL_DAYS - len(covid.index)
-mu = covid.growth_factor.mean() - 0.2
-sigma = covid.growth_factor.std() - 0.35
+mu = covid.growth_factor[-13:].mean()
+sigma = covid.growth_factor[-13:].std() + 0.1
 # pop_factor = POPULATION_SIZE / covid.total_cases[-1]
 
-sims_df = pd.DataFrame(index=pd.date_range(covid.index[-1], periods=days_to_sim))
+sims_df = pd.DataFrame(index=pd.date_range(covid.index[-1] + timedelta(1), periods=days_to_sim))
 
 for sim in range(NO_OF_SIMS):
     if sim % 100 == 0:
@@ -76,5 +75,6 @@ print(f'Best Case Scenario Total Cases = {best_scenario_total_cases} people, {ro
 print(f'Worst Case Scenario Total Cases = {worst_scenario_total_cases} people, {round(100* worst_scenario_total_cases / POPULATION_SIZE, 2)}% of popluation')
 
 # Plot total cases of each simulation over time
+plt.plot(covid.total_cases)
 for sim in total_cases:
     plt.plot(total_cases[sim])
