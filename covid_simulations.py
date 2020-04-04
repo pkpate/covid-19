@@ -9,7 +9,7 @@ plt.ion()
 
 STATS_FILE = 'covid_stats_usa.xlsx'
 TOTAL_DAYS = 150
-DRIFT = 0.013
+DRIFT = 0.008
 NO_OF_SIMS = 50
 POPULATION_SIZE = 329000000
 
@@ -18,7 +18,7 @@ def gf_monte_carlo(days_to_sim, mu, sigma, drift):
     gf_li = []
     for d in range(days_to_sim):
         new_mu = mu - (d // 1) * drift
-        gf = random.normal(new_mu - 0.1, sigma)
+        gf = random.normal(new_mu, sigma)
         if gf < 0:
             gf = 0
         if len(gf_li) > 0:
@@ -35,8 +35,8 @@ covid = pd.read_excel(STATS_FILE)
 covid.set_index(['date'], drop=True, inplace=True)
 
 days_to_sim = TOTAL_DAYS - len(covid.index)
-mu = covid.growth_factor.mean()
-sigma = covid.growth_factor.std()
+mu = covid.growth_factor.mean() - 0.2
+sigma = covid.growth_factor.std() - 0.2
 # pop_factor = POPULATION_SIZE / covid.total_cases[-1]
 
 sims_df = pd.DataFrame(index=pd.date_range(covid.index[-1], periods=days_to_sim))
