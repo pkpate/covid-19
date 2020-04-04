@@ -2,16 +2,33 @@ import pandas as pd
 import numpy as np
 from numpy import random
 import matplotlib.pyplot as plt
-from datetime import datetime as dt
-from datetime import timedelta
+import requests
 
 plt.ion()
 
 STATS_FILE = 'covid_stats_usa.xlsx'
 TOTAL_DAYS = 150
-DRIFT = 0.008
-NO_OF_SIMS = 50
+DRIFT = 0.011
+NO_OF_SIMS = 400
 POPULATION_SIZE = 329000000
+
+# Load Data from Stats File
+# covid = pd.read_excel(STATS_FILE)
+# covid.set_index(['date'], drop=True, inplace=True)
+
+# Load Data via API
+base_url = 'https://covidtracking.com'
+resource_url = '/api/v1/us/daily.json'
+r = requests.get(url=base_url + resource_url)
+covid = pd.DataFrame(r.json())
+covid.date = pd.to_datetime(covid.date, format='%Y%m%d')
+covid.set_index('date', inplace=True)
+covid.sort_index(inplace=True)
+covid = covid.rename(columns={'positive': 'total_cases'})
+covid['new_cases'] = covid.total_cases.diff()
+covid['growth_factor'] = covid.new_cases.pct_change() + 1
+
+covid.drop(covid.index[-1], inplace=True)
 
 
 def gf_monte_carlo(days_to_sim, mu, sigma, drift):
@@ -31,12 +48,9 @@ def gf_monte_carlo(days_to_sim, mu, sigma, drift):
     return gf_li
 
 
-covid = pd.read_excel(STATS_FILE)
-covid.set_index(['date'], drop=True, inplace=True)
-
 days_to_sim = TOTAL_DAYS - len(covid.index)
 mu = covid.growth_factor.mean() - 0.2
-sigma = covid.growth_factor.std() - 0.2
+sigma = covid.growth_factor.std() - 0.35
 # pop_factor = POPULATION_SIZE / covid.total_cases[-1]
 
 sims_df = pd.DataFrame(index=pd.date_range(covid.index[-1], periods=days_to_sim))
