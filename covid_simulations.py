@@ -9,7 +9,7 @@ plt.ion()
 
 STATS_FILE = 'covid_stats_usa.xlsx'
 TOTAL_DAYS = 150
-DRIFT = 0.011
+DRIFT = 0.0016
 NO_OF_SIMS = 400
 POPULATION_SIZE = 329000000
 
@@ -31,6 +31,17 @@ covid['growth_factor'] = covid.new_cases.pct_change() + 1
 
 
 def gf_monte_carlo(days_to_sim, mu, sigma, drift):
+    x = np.array(range(days_to_sim))
+    b = random.normal(mu, sigma, size=days_to_sim)
+    y = -drift * x + b
+    for i, g in enumerate(y):
+        dn_cases = covid.new_cases[-1] * pd.Series(y[:i + 1]).cumprod()
+        n_cases = (covid.total_cases[-1] + dn_cases.cumsum()).iloc[-1]
+        y[i] = g * (1 - (n_cases / POPULATION_SIZE))
+    return y
+
+
+def gf_mc_old(days_to_sim, mu, sigma, drift):
     gf_li = []
     for d in range(days_to_sim):
         new_mu = mu - (d // 1) * drift
@@ -48,8 +59,8 @@ def gf_monte_carlo(days_to_sim, mu, sigma, drift):
 
 
 days_to_sim = TOTAL_DAYS - len(covid.index)
-mu = covid.growth_factor[-13:].mean()
-sigma = covid.growth_factor[-13:].std() + 0.1
+mu = covid.growth_factor[-13:].mean() - 0.07
+sigma = covid.growth_factor[-13:].std() + 0.05
 # pop_factor = POPULATION_SIZE / covid.total_cases[-1]
 
 sims_df = pd.DataFrame(index=pd.date_range(covid.index[-1] + timedelta(1), periods=days_to_sim))
@@ -78,3 +89,7 @@ print(f'Worst Case Scenario Total Cases = {worst_scenario_total_cases} people, {
 plt.plot(covid.total_cases)
 for sim in total_cases:
     plt.plot(total_cases[sim])
+
+# plt.plot(covid.growth_factor)
+# for sim in sims_df:
+#     plt.plot(sims_df[sim])
