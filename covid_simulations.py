@@ -59,8 +59,8 @@ def gf_mc_old(days_to_sim, mu, sigma, drift):
 
 
 days_to_sim = TOTAL_DAYS - len(covid.index)
-mu = covid.growth_factor[-13:].mean() - 0.07
-sigma = covid.growth_factor[-13:].std() + 0.05
+mu = covid.growth_factor[-13:].mean()
+sigma = covid.growth_factor[-13:].std() - 0.05
 # pop_factor = POPULATION_SIZE / covid.total_cases[-1]
 
 sims_df = pd.DataFrame(index=pd.date_range(covid.index[-1] + timedelta(1), periods=days_to_sim))
@@ -90,6 +90,12 @@ plt.plot(covid.total_cases)
 for sim in total_cases:
     plt.plot(total_cases[sim])
 
+# Plot daily new cases of each simulation over time
+# plt.plot(covid.new_cases)
+# for sim in daily_new_cases:
+#     plt.plot(daily_new_cases[sim])
+
+# Plot growth factor of each simulation over time
 # plt.plot(covid.growth_factor)
 # for sim in sims_df:
 #     plt.plot(sims_df[sim])
