@@ -25,5 +25,5 @@ There are several opportunities for improvement to this model in terms of code p
   ## Instructions
   ```
   pip install -r requirements.txt
-  python covid_simulations.py
+  ipython covid_simulations.py -i
   ```
