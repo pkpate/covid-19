@@ -23,7 +23,8 @@ There are several opportunities for improvement to this model in terms of code p
   * Ultimately, the goal is to randomly sample growth factors over time to model different scenarios.  There are probably multiple better methods of sampling and incorporating drift to simulate the way Growth Factor evolves over time.
 
   ## Instructions
-  ```
+  ```bash
   pip install -r requirements.txt
+  source venv/bin/activate
   ipython covid_simulations.py -i
   ```
