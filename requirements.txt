@@ -30,7 +30,7 @@ scikit-learn==0.22.2.post1
 scipy==1.4.1
 six==1.14.0
 traitlets==4.3.3
-urllib3==1.25.8
+urllib3==1.26.5
 wcwidth==0.1.9
 xlrd==1.2.0
 XlsxWriter==1.2.8
